@@ -7,7 +7,7 @@ import android.view.Display;
 
 
 public class MainActivity extends Activity {
-
+    public String test;
 
     SpaceGameView spaceGameView;
 
