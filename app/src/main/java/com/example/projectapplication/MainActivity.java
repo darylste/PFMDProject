@@ -8,6 +8,7 @@ import android.view.Display;
 
 public class MainActivity extends Activity {
     public String test;
+    public int testInt;
 
     SpaceGameView spaceGameView;
 
