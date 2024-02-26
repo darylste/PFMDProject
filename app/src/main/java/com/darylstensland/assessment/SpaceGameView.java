@@ -13,9 +13,11 @@ import android.view.SurfaceView;
 
 import java.io.IOException;
 
-public class SpaceGameView extends SurfaceView implements Runnable{
+public class SpaceGameView extends SurfaceView implements Runnable {
 
     private Context context;
+
+    private Spaceship spaceship;
 
     private Thread gameThread = null;
     private SurfaceHolder ourHolder;
@@ -38,14 +40,11 @@ public class SpaceGameView extends SurfaceView implements Runnable{
     private int lives = 3;
 
 
-
     public SpaceGameView(Context context, int x, int y) {
-
         super(context);
 
 
         this.context = context;
-
 
         ourHolder = getHolder();
         paint = new Paint();
@@ -53,15 +52,13 @@ public class SpaceGameView extends SurfaceView implements Runnable{
         screenX = x;
         screenY = y;
 
-
+        spaceship = new Spaceship(context, x, y);
 
         initLevel();
     }
 
 
-
-    private void initLevel(){
-
+    private void initLevel() {
 
 
     }
@@ -75,7 +72,7 @@ public class SpaceGameView extends SurfaceView implements Runnable{
             long startTime = System.currentTimeMillis();
 
 
-            if(!paused){
+            if (!paused) {
                 update();
             }
 
@@ -93,35 +90,27 @@ public class SpaceGameView extends SurfaceView implements Runnable{
     }
 
 
-
-    private void update(){
-
+    private void update() {
 
 
     }
 
 
-
-
-
-
-    private void draw(){
+    private void draw() {
 
         if (ourHolder.getSurface().isValid()) {
 
             canvas = ourHolder.lockCanvas();
+            canvas.drawBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.background), 0, 0, paint);
+            canvas.drawBitmap(Spaceship.getBitmap(), Spaceship.getX(), Spaceship.getY(), paint);
+            paint.setColor(Color.argb(255, 249, 129, 0));
 
-
-            canvas.drawColor(Color.argb(255, 26, 128, 182));
-
-            paint.setColor(Color.argb(255,  249, 129, 0));
             paint.setTextSize(40);
             canvas.drawText("Score: " + score + "   Lives: " +
-                    lives, 10,50, paint);
+                    lives, 10, 50, paint);
             ourHolder.unlockCanvasAndPost(canvas);
         }
     }
-
 
 
     public void pause() {
@@ -140,6 +129,55 @@ public class SpaceGameView extends SurfaceView implements Runnable{
         gameThread.start();
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+
+        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+
+            // Player has touched the screen
+
+            case MotionEvent.ACTION_DOWN:
+
+                paused = false;
+
+                if(motionEvent.getY() > screenY - screenY / 2) {
+                    if (motionEvent.getX() > screenX / 2) {
+                        spaceship.setMovementState(spaceship.RIGHT);
+                    } else {
+                        spaceship.setMovementState(spaceship.LEFT);
+                    }
 
 
-}  // end class
+                }
+
+                if(motionEvent.getY() < screenY - screenY / 2) {
+                    if (motionEvent.getX() > screenX / 2) {
+                        spaceship.setMovementState(spaceship.UP);
+                    } else {
+                        spaceship.setMovementState(spaceship.DOWN);
+                    }
+
+
+                }
+
+                //    if(motionEvent.getY() < screenY - screenY / 8) {
+                // Shots fired
+                //       if(bullet.shoot(playerShip.getX()+ playerShip.getLength()/2,screenY,bullet.UP)){
+                //        soundPool.play(shootID, 1, 1, 0, 0, 1);
+                //       }
+                //   }
+
+                break;
+
+            // Player has removed finger from screen
+            case MotionEvent.ACTION_UP:
+
+                //   if(motionEvent.getY() > screenY - screenY / 10) {
+                spaceship.setMovementState(spaceship.STOPPED);
+                //   }
+                break;
+        }
+        return true;
+    }
+
+}
